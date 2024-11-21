@@ -1,0 +1,167 @@
+<style>
+    section.ze-24h-countdown-timer {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 15px;
+      padding: 30px 0;
+      background-color: black;
+  }
+
+  div#timer {
+      font-size: 18px;
+      line-height: 20px;
+      font-weight: 600;
+      border: 2px solid white;
+      color: white;
+      padding: 5px 20px;
+      border-radius: 40px;
+      text-align: center;
+  }
+    span.ze-24h-countdown-timer-item{
+        font-size: 22px;
+        line-height: 22px;
+        font-weight: 700;
+        color: white;
+    }
+
+  h1.ze-24h-countdown-timer-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      text-align: center;
+  }
+  @media (max-width: 480px){
+    div#timer {
+      font-size: 16px;
+      line-height: 18px;
+  }
+    span.ze-24h-countdown-timer-item{
+        font-size: 18px;
+        line-height: 18px;
+    }
+
+  h1.ze-24h-countdown-timer-title {
+      font-size: 14px;
+  }
+  }
+</style>
+
+<section class="ze-24h-countdown-timer">
+  <h1 class="ze-24h-countdown-timer-title"> {{ section.settings.heading }}</h1>
+  <div class="ze-24h-countdown-timer-items" id="timer"></div>
+</section>
+
+<script
+  type="text/javascript"
+>
+  const timerElement = document.getElementById("timer");
+
+// Function to format time
+function formatTime(timeInSeconds) {
+    const hours = String(Math.floor(timeInSeconds / 3600)).padStart(2, "0");
+    const minutes = String(Math.floor((timeInSeconds % 3600) / 60)).padStart(2, "0");
+    const seconds = String(timeInSeconds % 60).padStart(2, "0");
+    return `ENDS IN <span class="ze-24h-countdown-timer-item">10</span> 
+    {{section.settings.days}} : <span class="ze-24h-countdown-timer-item">${hours}</span> 
+    {{section.settings.hours}} : <span class="ze-24h-countdown-timer-item">${minutes}</span> 
+    {{section.settings.minuts}} : <span class="ze-24h-countdown-timer-item">${seconds}</span> {{ section.settings.seconds }}`;
+}
+
+// Set fixed start date and time (adjust as needed)
+let startTime = new Date("{{section.settings.timer__start_date}} {{ section.settings.timer__start_time }}"); // Replace with desired starting date and time
+
+// Countdown function
+function startCountdown() {
+    const oneDayInSeconds = 24 * 60 * 60; // 24 hours in seconds
+
+    function updateTimer() {
+        const currentTime = new Date();
+        const elapsedTimeInSeconds = Math.floor((currentTime - startTime) / 1000);
+
+        // Calculate remaining time in the current 24-hour cycle
+        const remainingSeconds = oneDayInSeconds - (elapsedTimeInSeconds % oneDayInSeconds);
+
+        // Update the timer display
+        timerElement.innerHTML = formatTime(remainingSeconds);
+
+        // If the 24-hour cycle is completed
+        if (remainingSeconds <= 0) {
+            clearInterval(timerInterval); // Stop current interval
+            startTime = new Date(); // Set new start time to current time
+            startCountdown(); // Restart the countdown
+        }
+    }
+
+    // Update the timer every second
+    const timerInterval = setInterval(updateTimer, 1000);
+
+    // Initial update
+    updateTimer();
+}
+
+// Start the timer
+startCountdown();
+</script>
+{% schema %}
+{
+  "name": "ZE 24H Countdown Timer",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Countdown Timer Settings"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "82% sold out! Most boxers won't be restocked."
+    },
+    {
+      "type": "text",
+      "id": "timer__start_date",
+      "label": "Timer Initial Start Date",
+      "info": "Example> 2024-11-21",
+      "default": "2024-11-21"
+    },
+    {
+      "type": "text",
+      "id": "timer__start_time",
+      "label": "Timer Initial Start Time",
+      "info": "Example> 00:00:00",
+      "default": "00:00:00"
+    },
+    {
+      "type": "text",
+      "id": "days",
+      "label": "Day Title",
+      "default": "DAYS"
+    },
+    {
+      "type": "text",
+      "id": "hours",
+      "label": "Hours Title",
+      "default": "HRS"
+    },
+    {
+      "type": "text",
+      "id": "minuts",
+      "label": "Minuts Title",
+      "default": "MIN"
+    },
+    {
+      "type": "text",
+      "id": "seconds",
+      "label": "Seconds Title",
+      "default": "SEC"
+    }
+  ],
+  "presets": [
+    {
+      "name": "ZE 24H Countdown Timer"
+    }
+  ]
+}
+{% endschema %}
